@@ -20,9 +20,20 @@ class CBRService: NSObject {
             
             let url = URL(string: "http://cbr.ru/scripts/XML_dynamic.asp?date_req1=\(range.from)&date_req2=\(range.to)&VAL_NM_RQ=R01235")!
             
-            let task = URLSession.shared.dataTask(with: url) { data, _, _ in
+            let task = URLSession.shared.dataTask(with: url) { data, response, error in
+                
+                if let error = error {
+                    print("client error \(error.localizedDescription)")
+                    return
+                }
+                
+                guard let httpResponse = response as? HTTPURLResponse,
+                      (200...299).contains(httpResponse.statusCode) else {
+                    print("server error")
+                    return
+                }
+                
                 if let data = data{
-                    
                     let parser = XMLParser(data: data)
                     parser.delegate = self
                     if parser.parse(){
