@@ -16,6 +16,8 @@ class CBRService: NSObject {
     
     func fetch(completion: @escaping ([Record]) -> Void) {
         
+        records.removeAll()
+        
         if let range = getRange(format: "dd/MM/yyyy"){
             
             let url = URL(string: "http://cbr.ru/scripts/XML_dynamic.asp?date_req1=\(range.from)&date_req2=\(range.to)&VAL_NM_RQ=R01235")!

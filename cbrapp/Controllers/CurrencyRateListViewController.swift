@@ -7,32 +7,43 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class CurrencyRateListViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
     var records: [Record] = []
+    let service = CBRService()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(willEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        
+        fetch()
+        
         setupNavBar()
         configureTableView()
-        
-        let service = CBRService()
+    }
+    
+    @objc
+    func willEnterForeground() {
+        fetch()
+    }
+    
+    func fetch() {
         service.fetch{ records in
             
-            self.records = service.sortedByDateDesc(records: records)
+            self.records = self.service.sortedByDateDesc(records: records)
             
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
-            
         }
     }
 }
 
-private extension ViewController{
+private extension CurrencyRateListViewController{
     
     func setupNavBar() {
         navigationItem.title = String(GlobalSettings.currentRate)
@@ -45,7 +56,7 @@ private extension ViewController{
     }
 }
 
-extension ViewController: UITableViewDataSource{
+extension CurrencyRateListViewController: UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return records.count
     }
